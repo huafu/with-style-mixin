@@ -5,7 +5,7 @@ function EMPTY_CACHE() {
 function WRONG_BINDING() {
 }
 
-var BINDINGS_CACHE = {};
+var BINDINGS_CACHE = Object.create(null);
 
 /**
  * @mixin WithStyleMixin
