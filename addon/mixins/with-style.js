@@ -1,15 +1,5 @@
 import Ember from 'ember';
-import {
-  buildBindingsMap,
-  computeStylesFromMap,
-  updateStyleCacheInMap
-  } from '../helpers/bind-style';
-
-function makeObserver(cssProp) {
-  return function () {
-    this._stylePropertyDidChange(cssProp);
-  };
-}
+import StyleBindingsMeta from '../core/style-bindings-meta';
 
 /**
  * @mixin WithStyleMixin
@@ -60,11 +50,14 @@ var WithStyleMixin = Ember.Mixin.create({
 
 
   /**
-   * @property styleBindingsMap
-   * @type Object<Object>
+   * @property styleBindingsMeta
+   * @type StyleBindingsMeta
    */
-  styleBindingsMap: Ember.computed('styleBindings.@each', function () {
-    return buildBindingsMap(this.get('styleBindings'));
+  styleBindingsMeta: Ember.computed(function (key, value) {
+    if (arguments.length < 2) {
+      value = new StyleBindingsMeta(this);
+    }
+    return value;
   }).readOnly(),
 
   /**
@@ -72,7 +65,7 @@ var WithStyleMixin = Ember.Mixin.create({
    * @type String
    */
   style: Ember.computed(function () {
-    return computeStylesFromMap.call(this, this.get('styleBindingsMap'));
+    return this.get('styleBindingsMeta').getStyle();
   }).readOnly(),
 
   /**
@@ -81,19 +74,7 @@ var WithStyleMixin = Ember.Mixin.create({
    * @private
    */
   _notifyStyleChange: function () {
-    Ember.run.once(this, 'notifyPropertyChange', 'style');
-  },
-
-  /**
-   * Recomputed one property when it has changed
-   *
-   * @method _stylePropertyDidChange
-   * @param {String} cssProp
-   * @private
-   */
-  _stylePropertyDidChange: function (cssProp) {
-    updateStyleCacheInMap.call(this, this.get('styleBindingsMap'), cssProp);
-    this._notifyStyleChange();
+    this.notifyPropertyChange('style');
   },
 
   /**
@@ -102,10 +83,10 @@ var WithStyleMixin = Ember.Mixin.create({
    * @private
    */
   _initWithStyleMixin: Ember.observer('styleBindings.@each', Ember.on('init', function () {
-    var map = this.get('styleBindingsMap');
-    for (var k in map) {
-      this.addObserver(map[k].property, this, map[k].observer = makeObserver(k));
-    }
+    var meta = this.get('styleBindingsMeta');
+    meta.setBindings(this.get('styleBindings'));
+    meta.startObserving();
+    meta.addListener('_notifyStyleChange');
   })),
 
   /**
@@ -113,13 +94,10 @@ var WithStyleMixin = Ember.Mixin.create({
    * @method _destroyWithStyleMixin
    * @private
    */
-  _destroyWithStyleMixin: Ember.beforeObserver('styleBindings.@each', Ember.on('destroy', function () {
-    var map = this.get('styleBindingsMap');
-    for (var k in map) {
-      this.removeObserver(map[k].property, this, map[k].observer);
-      delete map[k].observer;
-    }
-  }))
+  _destroyWithStyleMixin: Ember.on('destroy', function () {
+    this.get('styleBindingsMeta').destroy();
+    this.set('styleBindingsMeta', null);
+  })
 });
 
 export default WithStyleMixin;
