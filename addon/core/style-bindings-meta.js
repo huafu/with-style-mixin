@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+var get = Ember.get;
+
 function EMPTY_CACHE() {
 }
 function WRONG_BINDING() {
@@ -96,7 +98,7 @@ StyleBindingsMeta.prototype.destroy = function () {
  */
 StyleBindingsMeta.prototype.addListener = function (listener) {
   if (typeof listener === 'string') {
-    listener = this.target[listener];
+    listener = get(this.target, listener);
   }
   if (this.listeners.indexOf(listener) < 0) {
     this.listeners.push(listener);
@@ -112,7 +114,7 @@ StyleBindingsMeta.prototype.addListener = function (listener) {
 StyleBindingsMeta.prototype.removeListener = function (listener) {
   var index;
   if (typeof listener === 'string') {
-    listener = this.target[listener];
+    listener = get(this.target, listener);
   }
   if ((index = this.listeners.indexOf(listener)) >= 0) {
     this.listeners.splice(index, 1);
@@ -241,7 +243,7 @@ StyleBindingsMeta.prototype.getStyle = function () {
     if ((val = map[cssProp].cache) === EMPTY_CACHE) {
       val = map[cssProp].cache = computeStyleProperty(
         cssProp,
-        this.target.get(map[cssProp].property),
+        get(this.target, map[cssProp].property),
         map[cssProp].yesNo,
         map[cssProp].unit
       );
@@ -290,7 +292,7 @@ StyleBindingsMeta.prototype.styleDidChange = function () {
 StyleBindingsMeta.prototype.startObserving = function () {
   var dependencyMap = this.getDependencyMap();
   for (var property in dependencyMap) {
-    this.target.addObserver(property, this, 'propertyDidChange');
+    Ember.addObserver(this.target, property, this, 'propertyDidChange');
   }
 };
 
@@ -304,7 +306,7 @@ StyleBindingsMeta.prototype.stopObserving = function () {
     return;
   }
   for (var property in this.dependencyMap) {
-    this.target.removeObserver(property, this, 'propertyDidChange');
+    Ember.removeObserver(this.target, property, this, 'propertyDidChange');
   }
 };
 
