@@ -55,6 +55,23 @@ function computeStyleProperty(cssProp, value, yesNo, unit) {
 }
 
 /**
+ * Given a string or an array, returns a clean array of bindings
+ *
+ * @method cleanupBindings
+ * @param {String|Array} bindings
+ * @returns {Array}
+ */
+function cleanupBindings(bindings) {
+  var cleanBindings = typeof(bindings) === 'string' ? [bindings] : bindings;
+  cleanBindings = cleanBindings.join(' ').split(/\s+/g);
+  if (cleanBindings.length === 1 && cleanBindings[0] === '') {
+    cleanBindings = [];
+  }
+  return cleanBindings;
+}
+
+
+/**
  * Handles style bindings dependent on properties of a given target
  *
  * @class StyleBindingsMeta
@@ -65,7 +82,7 @@ function computeStyleProperty(cssProp, value, yesNo, unit) {
 function StyleBindingsMeta(target, bindings) {
   this.dependencyMap = null;
   this.map = null;
-  this.bindings = bindings;
+  this.bindings = bindings ? cleanupBindings(bindings) : null;
   this.cachedStyle = EMPTY_CACHE;
   this.target = target;
   this.listeners = [];
@@ -128,7 +145,8 @@ StyleBindingsMeta.prototype.removeListener = function (listener) {
  * @param {Array<String>} bindings
  */
 StyleBindingsMeta.prototype.setBindings = function (bindings) {
-  if (this.bindings && bindings.join('$') === this.bindings.join('$')) {
+  bindings = cleanupBindings(bindings);
+  if (this.bindings && bindings.join(' ') === this.bindings.join(' ')) {
     return;
   }
   this.stopObserving();
@@ -192,7 +210,7 @@ StyleBindingsMeta.prototype.buildMaps = function () {
     // try to parse the binding
     else if ((match = binding.match(STYLE_BINDING_PROPERTY_REGEXP))) {
       cssProp = match[3];
-      emberProp = match[2] || cssProp;
+      emberProp = match[2] || Ember.String.camelize(cssProp);
       unit = match[5];
       map[cssProp] = meta = Object.create(null);
       meta.property = emberProp;
@@ -213,6 +231,7 @@ StyleBindingsMeta.prototype.buildMaps = function () {
     // without match, save it in the bindings cache to avoid re-computing later
     else {
       BINDINGS_CACHE[binding] = WRONG_BINDING;
+      Ember.warn('[with-style-mixin] Invalid binding: `%@`');
     }
     // populate the dependency map
     if (meta) {
