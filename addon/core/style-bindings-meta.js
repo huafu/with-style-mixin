@@ -52,7 +52,14 @@ function computeStyleProperty(cssProp, value, yesNo, unit) {
   }
 }
 
-
+/**
+ * Handles style bindings dependent on properties of a given target
+ *
+ * @class StyleBindingsMeta
+ * @param {Ember.Object} target
+ * @param {Array} [bindings]
+ * @constructor
+ */
 function StyleBindingsMeta(target, bindings) {
   this.dependencyMap = null;
   this.map = null;
@@ -62,6 +69,11 @@ function StyleBindingsMeta(target, bindings) {
   this.listeners = [];
 }
 
+/**
+ * Free memory related to this object and freeze the object if possible
+ *
+ * @method destroy
+ */
 StyleBindingsMeta.prototype.destroy = function () {
   this.stopObserving();
   delete this.dependencyMap;
@@ -75,6 +87,13 @@ StyleBindingsMeta.prototype.destroy = function () {
   }
 };
 
+/**
+ * Add a listener which gonna be called when the style changes
+ * The context of the listener will be the target
+ *
+ * @method addListener
+ * @param {Function|String} listener
+ */
 StyleBindingsMeta.prototype.addListener = function (listener) {
   if (typeof listener === 'string') {
     listener = this.target[listener];
@@ -84,6 +103,12 @@ StyleBindingsMeta.prototype.addListener = function (listener) {
   }
 };
 
+/**
+ * Removes a listener
+ *
+ * @method removeListener
+ * @param {String|Function} listener
+ */
 StyleBindingsMeta.prototype.removeListener = function (listener) {
   var index;
   if (typeof listener === 'string') {
@@ -94,6 +119,12 @@ StyleBindingsMeta.prototype.removeListener = function (listener) {
   }
 };
 
+/**
+ * Updates the bindings definition
+ *
+ * @method setBindings
+ * @param {Array<String>} bindings
+ */
 StyleBindingsMeta.prototype.setBindings = function (bindings) {
   if (this.bindings && bindings.join('$') === this.bindings.join('$')) {
     return;
@@ -105,6 +136,12 @@ StyleBindingsMeta.prototype.setBindings = function (bindings) {
   this.cachedStyle = EMPTY_CACHE;
 };
 
+/**
+ * Get the css property mapping, computing it if necessary
+ *
+ * @method getMap
+ * @returns {Object}
+ */
 StyleBindingsMeta.prototype.getMap = function () {
   if (!this.map) {
     this.buildMaps();
@@ -112,6 +149,12 @@ StyleBindingsMeta.prototype.getMap = function () {
   return this.map;
 };
 
+/**
+ * Get the target property mapping, computing it if necessary
+ *
+ * @method getDependencyMap
+ * @returns {Object}
+ */
 StyleBindingsMeta.prototype.getDependencyMap = function () {
   if (!this.dependencyMap) {
     this.buildMaps();
@@ -119,6 +162,11 @@ StyleBindingsMeta.prototype.getDependencyMap = function () {
   return this.dependencyMap;
 };
 
+/**
+ * Builds the property map and dependency map
+ *
+ * @method buildMaps
+ */
 StyleBindingsMeta.prototype.buildMaps = function () {
   var map = this.map = Object.create(null);
   var dependencyMap = this.dependencyMap = Object.create(null);
@@ -175,6 +223,12 @@ StyleBindingsMeta.prototype.buildMaps = function () {
   }
 };
 
+/**
+ * Get the css style source, computed it if not in cache
+ *
+ * @method getStyle
+ * @returns {String}
+ */
 StyleBindingsMeta.prototype.getStyle = function () {
   var buffer, val, map;
   if (this.cachedStyle !== EMPTY_CACHE) {
@@ -199,6 +253,13 @@ StyleBindingsMeta.prototype.getStyle = function () {
   return (this.cachedStyle = buffer);
 };
 
+/**
+ * Called when a property is changed to clear the cache of dependent css properties
+ *
+ * @method propertyDidChange
+ * @param {Ember.Object} target
+ * @param {String} property
+ */
 StyleBindingsMeta.prototype.propertyDidChange = function (target, property) {
   var cssProps = this.getDependencyMap()[property];
   for (var i = 0; i < cssProps.length; i++) {
@@ -210,12 +271,22 @@ StyleBindingsMeta.prototype.propertyDidChange = function (target, property) {
   }
 };
 
+/**
+ * Called when the style has been changed. Will call all listeners if any defined
+ *
+ * @method styleDidChange
+ */
 StyleBindingsMeta.prototype.styleDidChange = function () {
   for (var i = 0; i < this.listeners.length; i++) {
     this.listeners[i].call(this.target, this);
   }
 };
 
+/**
+ * Start observing the target for changes on properties it depends on
+ *
+ * @method startObserving
+ */
 StyleBindingsMeta.prototype.startObserving = function () {
   var dependencyMap = this.getDependencyMap();
   for (var property in dependencyMap) {
@@ -223,6 +294,11 @@ StyleBindingsMeta.prototype.startObserving = function () {
   }
 };
 
+/**
+ * Stop observing for property changes
+ *
+ * @method stopObserving
+ */
 StyleBindingsMeta.prototype.stopObserving = function () {
   if (!this.dependencyMap) {
     return;
