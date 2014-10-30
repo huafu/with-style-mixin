@@ -1,11 +1,15 @@
 import Ember from 'ember';
+import {
+  buildBindingsMap,
+  computeStylesFromMap,
+  updateStyleCacheInMap
+  } from '../helpers/bind-style';
 
-function EMPTY_CACHE() {
+function makeObserver(cssProp) {
+  return function () {
+    this._stylePropertyDidChange(cssProp);
+  };
 }
-function WRONG_BINDING() {
-}
-
-var BINDINGS_CACHE = Object.create(null);
 
 /**
  * @mixin WithStyleMixin
@@ -59,56 +63,17 @@ var WithStyleMixin = Ember.Mixin.create({
    * @property styleBindingsMap
    * @type Object<Object>
    */
-  styleBindingsMap: function () {
-    var res = {}, match, cssProp, emberProp, unit, binding,
-      bindings = this.get('styleBindings');
-    for (var i = 0; i < bindings.length; i++) {
-      binding = bindings[i];
-      // we got a match in the bindings cache
-      if ((match = BINDINGS_CACHE[binding])) {
-        // if it is a valid binding, use it
-        if (match !== WRONG_BINDING) {
-          cssProp = match.cssProp;
-          res[cssProp] = { property: match.property, unit: match.unit, cache: EMPTY_CACHE };
-        }
-      }
-      // try to parse the binding
-      else if ((match = binding.match(/^(([^:]+):)?([a-z0-9_\.-]+)(\[([a-z%]+)\])?$/i))) {
-        cssProp = match[3];
-        emberProp = match[2] || cssProp;
-        unit = match[5];
-        res[cssProp] = { property: emberProp, unit: unit, cache: EMPTY_CACHE };
-        // cache the binding
-        BINDINGS_CACHE[binding] = { property: emberProp, unit: unit, cssProp: cssProp };
-      }
-      // without match, save it in the bindings cache to avoid re-computing later
-      else {
-        BINDINGS_CACHE[binding] = WRONG_BINDING;
-      }
-    }
-    return res;
-  }.property('styleBindings.@each').readOnly(),
+  styleBindingsMap: Ember.computed('styleBindings.@each', function () {
+    return buildBindingsMap(this.get('styleBindings'));
+  }).readOnly(),
 
   /**
    * @property style
    * @type String
    */
-  style: function () {
-    var map = this.get('styleBindingsMap');
-    var props = [], val;
-    for (var cssProp in map) {
-      // get from the cache, and compute the value if the cache is an empty entry
-      if ((val = map[cssProp].cache) === EMPTY_CACHE) {
-        val = map[cssProp].cache = this._computeStyle(
-          cssProp, this.get(map[cssProp].property), map[cssProp].unit
-        );
-      }
-      if (val !== null) {
-        props.push(val);
-      }
-    }
-    return props.join(' ');
-  }.property().readOnly(),
+  style: Ember.computed(function () {
+    return computeStylesFromMap.call(this, this.get('styleBindingsMap'));
+  }).readOnly(),
 
   /**
    * Schedule the notification of the change of the style property
@@ -127,30 +92,8 @@ var WithStyleMixin = Ember.Mixin.create({
    * @private
    */
   _stylePropertyDidChange: function (cssProp) {
-    var map = this.get('styleBindingsMap');
-    map[cssProp].cache = this._computeStyle(cssProp, this.get(map[cssProp].property), map[cssProp].unit);
+    updateStyleCacheInMap.call(this, this.get('styleBindingsMap'), cssProp);
     this._notifyStyleChange();
-  },
-
-  /**
-   * Computes the style property given the name of the css property, it's value and unit
-   *
-   * @method _computeStyle
-   * @param {String} cssProp
-   * @param {*} value
-   * @param {String} unit
-   * @returns {String}
-   * @private
-   */
-  _computeStyle: function (cssProp, value, unit) {
-    if (value !== undefined && value !== null && value !== '') {
-      value = '' + value;
-      unit = unit && value !== '0' && /^[0-9\.]+$/.test(value) ? unit : '';
-      return cssProp + ': ' + value + unit + ';';
-    }
-    else {
-      return null;
-    }
   },
 
   /**
@@ -158,24 +101,25 @@ var WithStyleMixin = Ember.Mixin.create({
    * @method _initWithStyleMixin
    * @private
    */
-  _initWithStyleMixin: function () {
+  _initWithStyleMixin: Ember.observer('styleBindings.@each', Ember.on('init', function () {
     var map = this.get('styleBindingsMap');
     for (var k in map) {
-      this.addObserver(map[k].property, this, '_stylePropertyDidChange', k);
+      this.addObserver(map[k].property, this, map[k].observer = makeObserver(k));
     }
-  }.observes('styleBindings.@each').on('init'),
+  })),
 
   /**
    * Stop listening for any style related property change
    * @method _destroyWithStyleMixin
    * @private
    */
-  _destroyWithStyleMixin: function () {
+  _destroyWithStyleMixin: Ember.beforeObserver('styleBindings.@each', Ember.on('destroy', function () {
     var map = this.get('styleBindingsMap');
     for (var k in map) {
-      this.removeObserver(map[k].property, this, 'stylePropertyDidChange');
+      this.removeObserver(map[k].property, this, map[k].observer);
+      delete map[k].observer;
     }
-  }.observesBefore('styleBindings.@each').on('destroy')
+  }))
 });
 
 export default WithStyleMixin;

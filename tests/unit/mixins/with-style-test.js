@@ -88,3 +88,87 @@ test('it renders properties with unit and mapping', function () {
     strictEqual(subject.$().attr('style'), 'width: 10px; margin: 0; height: 30%;');
   });
 });
+
+test('it renders properties with ternary operator', function () {
+  var subject = WithStyleView.create({
+    styleBindings: ['display?:none', 'visibility?visible:', 'overflow?visible:hidden'],
+    display:       true,
+    visibility:    true,
+    overflow:      true
+  });
+  render(subject);
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'visibility: visible; overflow: visible;');
+    subject.setProperties({
+      display:    false,
+      visibility: false,
+      overflow:   false
+    });
+  });
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'display: none; overflow: hidden;');
+  });
+});
+
+test('it renders properties with ternary operator and mapping', function () {
+  var subject = WithStyleView.create({
+    styleBindings: ['disp:display?:none', 'vis:visibility?visible:', 'over:overflow?visible:hidden'],
+    disp:          true,
+    vis:           true,
+    over:          true
+  });
+  render(subject);
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'visibility: visible; overflow: visible;');
+    subject.setProperties({
+      disp: false,
+      vis:  false,
+      over: false
+    });
+  });
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'display: none; overflow: hidden;');
+  });
+});
+
+test('it renders properties with ternary operator and units', function () {
+  var subject = WithStyleView.create({
+    styleBindings: ['width[px]?:10', 'height[%]?50:', 'padding[em]?10:0'],
+    width:         true,
+    height:        true,
+    padding:       true
+  });
+  render(subject);
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'height: 50%; padding: 10em;');
+    subject.setProperties({
+      width:   false,
+      height:  false,
+      padding: false
+    });
+  });
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'width: 10px; padding: 0;');
+  });
+});
+
+test('it renders properties with ternary operator, mapping and units', function () {
+  var subject = WithStyleView.create({
+    styleBindings: ['w:width[px]?:100', 'h:height[%]?50:', 'pad:padding[em]?10:0'],
+    w:             true,
+    h:             true,
+    pad:           true
+  });
+  render(subject);
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'height: 50%; padding: 10em;');
+    subject.setProperties({
+      w:   false,
+      h:   false,
+      pad: false
+    });
+  });
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'width: 100px; padding: 0;');
+  });
+});
