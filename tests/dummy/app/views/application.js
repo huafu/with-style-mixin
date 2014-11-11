@@ -11,6 +11,9 @@ export default Ember.View.extend(WithStyleMixin, {
   bgColor: 'inherit',
 
   initHljs: function () {
+    if (typeof hljs === 'undefined') {
+      return;
+    }
     Ember.run.schedule('afterRender', this, function () {
       this.$('pre code').each(function (i, block) {
         hljs.highlightBlock(block);
