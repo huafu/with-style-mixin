@@ -43,21 +43,21 @@ You can also use the `{{bind-style ...}}` helper if you need to bind styles on a
 the main element of a view. It's working exactly the same thinking that you give as arguments each entry
 you'd put in the view's `styleBindings` property:
 
-    ```handlebars
-    <div {{bind-style 'width[px]' 'color' 'fontSize:font-size[em]' 'margin[px]'
-        'show:display?block:none' 'visible:visibility?:hidden'}}>
-      <p>hello!<p>
-    </div>
-    ```
+```handlebars
+<div {{bind-style 'width[px]' 'color' 'fontSize:font-size[em]' 'margin[px]'
+    'show:display?block:none' 'visible:visibility?:hidden'}}>
+  <p>hello!<p>
+</div>
+```
     
 You can also combine all in one string, separating each of them with a space:
 
-    ```handlebars
-    <div {{bind-style 'width[px] color fontSize:font-size[em] margin[px]'
-        'show:display?block:none visible:visibility?:hidden'}}>
-      <p>hello!<p>
-    </div>
-    ```
+```handlebars
+<div {{bind-style 'width[px] color fontSize:font-size[em] margin[px]'
+    'show:display?block:none visible:visibility?:hidden'}}>
+  <p>hello!<p>
+</div>
+```
 
 
 ## API
