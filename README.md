@@ -1,6 +1,7 @@
 # with-style-mixin [![Build Status](https://travis-ci.org/huafu/with-style-mixin.svg?branch=master)](https://travis-ci.org/huafu/with-style-mixin)
 
 An Ember mixin to allow you to bind style properties on your view/controller/whatever properties.
+Very simple live demo available [here](http://huafu.github.io/with-style-mixin/)
 
 ## Installation
 
