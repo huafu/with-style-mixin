@@ -1,0 +1,21 @@
+<h2 id="test1" {{bind-style 'width[px]' 'height[%]' 'margin[pt]' 'margin-top[em]'}}>
+  Welcome to Ember.js
+</h2>
+
+
+<div class="inputs">
+  <label>width: {{input value=width id="width"}}</label>
+  <label>height: {{input value=height id="height"}}</label>
+  <label>margin: {{input value=margin id="margin"}}</label>
+  <label>margin-top: {{input value=marginTop id="marginTop"}}</label>
+  <hr/>
+  <label>myDisplay: {{input type='checkbox' checked=isShown id="isShown"}}</label>
+  <label>isLarge: {{input type='checkbox' checked=isLarge id="isLarge"}}</label>
+</div>
+
+
+<div id="test2" {{bind-style 'isShown:display?:none isLarge:font-weight?bold:'}}>
+  wooot
+</div>
+
+{{outlet}}

@@ -17,7 +17,7 @@ module('Acceptance: Application', {
 });
 
 test('{{bind-style...}}', function () {
-  visit('/');
+  visit('/test');
 
   andThen(function () {
     strictEqual(styleOf('#test1'), 'width: 10px; height: 20%; margin: 10px; margin-top: 1em;');
