@@ -7,7 +7,7 @@ function EMPTY_CACHE() {
 function WRONG_BINDING() {
 }
 
-var STYLE_BINDING_PROPERTY_REGEXP = /^(([^\?:]+):)?([a-z0-9_\.-]+)(\[([a-z%]+)\])?(\?([a-z0-9_\.-]*):([a-z0-9_\.-]*))?$/i;
+var STYLE_BINDING_PROPERTY_REGEXP = /^(([^\?:]+):)?([a-z0-9_\.-]+)(\[([a-z%]+)\])?(\?([a-z0-9_\.\-]*):([a-z0-9_\.\-]*))?$/i;
 
 /**
  * Cache for building bindings
@@ -231,7 +231,7 @@ StyleBindingsMeta.prototype.buildMaps = function () {
     // without match, save it in the bindings cache to avoid re-computing later
     else {
       BINDINGS_CACHE[binding] = WRONG_BINDING;
-      Ember.warn('[with-style-mixin] Invalid binding: `%@`');
+      Ember.warn('[with-style-mixin] Invalid binding: `' + binding + '`');
     }
     // populate the dependency map
     if (meta) {

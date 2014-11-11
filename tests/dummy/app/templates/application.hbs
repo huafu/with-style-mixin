@@ -1,21 +1,52 @@
-<h2 id="test1" {{bind-style 'width[px]' 'height[%]' 'margin[pt]' 'margin-top[em]'}}>
-  Welcome to Ember.js
-</h2>
-
-
-<div class="inputs">
-  <label>width: {{input value=width id="width"}}</label>
-  <label>height: {{input value=height id="height"}}</label>
-  <label>margin: {{input value=margin id="margin"}}</label>
-  <label>margin-top: {{input value=marginTop id="marginTop"}}</label>
-  <hr/>
-  <label>myDisplay: {{input type='checkbox' checked=isShown id="isShown"}}</label>
-  <label>isLarge: {{input type='checkbox' checked=isLarge id="isLarge"}}</label>
+<div class="social-networks-bar">
+  <iframe
+      src="http://ghbtns.com/github-btn.html?user=huafu&repo=with-style-mixin&type=watch&count=true"
+      allowtransparency="true" frameborder="0" scrolling="0" width="80" height="20"></iframe>
+  <iframe
+      src="//platform.twitter.com/widgets/follow_button.html?screen_name=HuafuGandon"
+      style="width: 240px; height: 20px;"
+      allowtransparency="true"
+      frameborder="0"
+      scrolling="no">
+  </iframe>
 </div>
 
+<h1>with-style-mixin</h1>
 
-<div id="test2" {{bind-style 'isShown:display?:none isLarge:font-weight?bold:'}}>
-  wooot
-</div>
+<section {{bind-style 'border-width[px] border-style'
+    'asInlineBlock:display?inline-block:' 'fontPercent:font-size[%]'}}>
+  <pre>
+    <code lang="handlebars">
+      &lt;section \{{bind-style 'border-width[px] border-style'
+        'asInlineBlock:display?inline-block:' 'fontPercent:font-size[%]'}}&gt;...&lt;/section&gt;
+    </code>
+  </pre>
+  <div>
+    <label>borderWidth = {{input value=borderWidth}}</label>
+    <label>borderStyle = {{input value=borderStyle}}</label>
+    <label>fontPercent = {{input value=fontPercent}}</label>
+    <label>asInlineBlock = {{input type='checkbox' checked=asInlineBlock}}</label>
+  </div>
+</section>
 
-{{outlet}}
+<section>
+  <pre>
+    <code lang="javascript">
+import Ember from 'ember';
+import WithStyleMixin from 'with-style-mixin/mixins/with-style';
+
+export default Ember.View.extend(WithStyleMixin, {
+  styleBindings: [
+    'controller.appPaddingTop:padding-top[px]',
+    'bgColor:background-color'
+  ],
+
+  bgColor: 'inherit',
+
+  // ...
+});
+    </code>
+  </pre>
+  <label>appPaddingTop = {{input value=appPaddingTop}}</label>
+  <label>view.bgColor = {{input value=view.bgColor}}</label>
+</section>
