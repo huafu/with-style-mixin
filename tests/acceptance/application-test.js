@@ -32,10 +32,10 @@ test('{{bind-style...}}', function () {
     strictEqual(styleOf('#test2'), 'display: none; font-weight: bold;');
     fillIn('#width', 400);
     fillIn('#height', '');
-    fillIn('#margin', 20);
+    fillIn('#margin', -20);
     fillIn('#marginTop', '3px');
   });
   andThen(function() {
-    strictEqual(styleOf('#test1'), 'width: 400px; margin: 20pt; margin-top: 3px;');
+    strictEqual(styleOf('#test1'), 'width: 400px; margin: -20pt; margin-top: 3px;');
   });
 });

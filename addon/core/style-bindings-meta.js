@@ -46,7 +46,7 @@ function computeStyleProperty(cssProp, value, yesNo, unit) {
   }
   if (value !== undefined && value !== null && value !== '') {
     value = '' + value;
-    unit = (unit && value !== '0' && /^[0-9\.]+$/.test(value)) ? unit : '';
+    unit = (unit && value !== '0' && !isNaN(value)) ? unit : '';
     return cssProp + ': ' + value + unit + ';';
   }
   else {

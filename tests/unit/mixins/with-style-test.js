@@ -64,6 +64,18 @@ test('it renders properties with unit', function () {
   });
 });
 
+test('it renders properties with negative numbers and unit', function () {
+  var subject = WithStyleView.create({
+    styleBindings: ['width[px]', 'margin[pt]'],
+    width:         -10,
+    margin:        -5
+  });
+  render(subject);
+  Ember.run(function () {
+    strictEqual(subject.$().attr('style'), 'width: -10px; margin: -5pt;');
+  });
+});
+
 test('it ignores unit when the value is 0 or is not a number', function () {
   var subject = WithStyleView.create({
     styleBindings: ['width[px]', 'margin[pt]'],
