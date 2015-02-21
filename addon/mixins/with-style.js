@@ -1,6 +1,11 @@
 import Ember from 'ember';
 import StyleBindingsMeta from '../core/style-bindings-meta';
 
+var computed = Ember.computed;
+var required = Ember.required;
+var observer = Ember.observer;
+var on = Ember.on;
+
 /**
  * @mixin WithStyleMixin
  * @example
@@ -46,27 +51,27 @@ var WithStyleMixin = Ember.Mixin.create({
    * @property styleBindings
    * @type Array<String>
    */
-  styleBindings: Ember.required(),
+  styleBindings: required(),
 
 
   /**
    * @property styleBindingsMeta
    * @type StyleBindingsMeta
    */
-  styleBindingsMeta: Ember.computed(function (key, value) {
+  styleBindingsMeta: computed(function (key, value) {
     if (arguments.length < 2) {
       value = new StyleBindingsMeta(this);
     }
     return value;
-  }).readOnly(),
+  }),
 
   /**
    * @property style
    * @type String
    */
-  style: Ember.computed(function () {
+  style: computed(function () {
     return this.get('styleBindingsMeta').getStyle();
-  }).readOnly(),
+  }),
 
   /**
    * Schedule the notification of the change of the style property
@@ -82,7 +87,7 @@ var WithStyleMixin = Ember.Mixin.create({
    * @method _initWithStyleMixin
    * @private
    */
-  _initWithStyleMixin: Ember.observer('styleBindings.@each', Ember.on('init', function () {
+  _initWithStyleMixin: on('init', observer('styleBindings.@each', function () {
     var meta = this.get('styleBindingsMeta');
     meta.setBindings(this.get('styleBindings'));
     meta.startObserving();
@@ -94,7 +99,7 @@ var WithStyleMixin = Ember.Mixin.create({
    * @method _destroyWithStyleMixin
    * @private
    */
-  _destroyWithStyleMixin: Ember.on('destroy', function () {
+  _destroyWithStyleMixin: on('destroy', function () {
     this.get('styleBindingsMeta').destroy();
     this.set('styleBindingsMeta', null);
   })

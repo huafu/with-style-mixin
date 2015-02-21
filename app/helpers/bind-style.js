@@ -1,6 +1,11 @@
 import Ember from 'ember';
 import StyleBindingsMeta from 'with-style-mixin/core/style-bindings-meta';
 
+var addListener = Ember.addListener;
+var run = Ember.run;
+var once = run.once;
+var SafeString = Ember.Handlebars.SafeString;
+
 var uuid = 0;
 
 var ATTRIBUTE_REPLACE_MAP = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
@@ -44,10 +49,10 @@ function bindStyle(/*binding1, binding2, ..., options*/) {
       $el.attr('style', bindingsMeta.getStyle());
     }
   });
-  Ember.addListener(view, 'willClearRender', bindingsMeta, 'destroy');
-  Ember.addListener(view, 'willDestroyElement', bindingsMeta, 'destroy');
-  Ember.run.once(bindingsMeta, 'startObserving');
-  return new Ember.Handlebars.SafeString(
+  addListener(view, 'willClearRender', bindingsMeta, 'destroy');
+  addListener(view, 'willDestroyElement', bindingsMeta, 'destroy');
+  once(bindingsMeta, 'startObserving');
+  return new SafeString(
     'style="' + escapeAttribute(bindingsMeta.getStyle()) + '" data-bindstyle-' + id + '="' + id + '"'
   );
 }

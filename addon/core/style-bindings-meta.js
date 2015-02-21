@@ -1,6 +1,13 @@
 import Ember from 'ember';
 
 var get = Ember.get;
+var addObserver = Ember.addObserver;
+var removeObserver = Ember.removeObserver;
+var warn = Ember.warn;
+var run = Ember.run;
+var once = run.once;
+var EmberString = Ember.String;
+var camelize = EmberString.camelize;
 
 function EMPTY_CACHE() {
 }
@@ -210,7 +217,7 @@ StyleBindingsMeta.prototype.buildMaps = function () {
     // try to parse the binding
     else if ((match = binding.match(STYLE_BINDING_PROPERTY_REGEXP))) {
       cssProp = match[3];
-      emberProp = match[2] || Ember.String.camelize(cssProp);
+      emberProp = match[2] || camelize(cssProp);
       unit = match[5];
       map[cssProp] = meta = Object.create(null);
       meta.property = emberProp;
@@ -231,7 +238,7 @@ StyleBindingsMeta.prototype.buildMaps = function () {
     // without match, save it in the bindings cache to avoid re-computing later
     else {
       BINDINGS_CACHE[binding] = WRONG_BINDING;
-      Ember.warn('[with-style-mixin] Invalid binding: `' + binding + '`');
+      warn('[with-style-mixin] Invalid binding: `' + binding + '`');
     }
     // populate the dependency map
     if (meta) {
@@ -288,7 +295,7 @@ StyleBindingsMeta.prototype.propertyDidChange = function (target, property) {
   }
   this.cachedStyle = EMPTY_CACHE;
   if (this.listeners.length) {
-    Ember.run.once(this, 'styleDidChange');
+    once(this, 'styleDidChange');
   }
 };
 
@@ -311,7 +318,7 @@ StyleBindingsMeta.prototype.styleDidChange = function () {
 StyleBindingsMeta.prototype.startObserving = function () {
   var dependencyMap = this.getDependencyMap();
   for (var property in dependencyMap) {
-    Ember.addObserver(this.target, property, this, 'propertyDidChange');
+    addObserver(this.target, property, this, 'propertyDidChange');
   }
 };
 
@@ -325,7 +332,7 @@ StyleBindingsMeta.prototype.stopObserving = function () {
     return;
   }
   for (var property in this.dependencyMap) {
-    Ember.removeObserver(this.target, property, this, 'propertyDidChange');
+    removeObserver(this.target, property, this, 'propertyDidChange');
   }
 };
 
