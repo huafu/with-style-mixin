@@ -1,0 +1,32 @@
+html {
+  margin: 0;
+  padding: 0;
+  background-color: #eee;
+}
+body {
+  margin: 40px;
+}
+
+.social-networks-bar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+section {
+  box-shadow: 0px 0px 5px #aaa;
+  padding: 10px;
+  background-color: #fff;
+  margin: 10px;
+}
+
+section label,
+section input {
+  font-size: 0.8em;
+  white-space: nowrap;
+  font-family: courier, monospace;
+  color: #710909;
+}
+section input {
+  width: 50px;
+}
